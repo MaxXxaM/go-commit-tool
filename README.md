@@ -251,8 +251,22 @@ make build
 # Установка
 make install
 
-# Тесты
+# Unit тесты
 make test
+
+# E2E тесты (требуется сборка)
+make test-e2e
+
+# Все тесты
+make test-all
+
+# Отдельные группы E2E тестов
+make test-e2e-init        # Инициализация и сканирование
+make test-e2e-clone       # Клонирование зависимостей
+make test-e2e-workspace   # Workspace управление
+make test-e2e-versioning  # Версионирование
+make test-e2e-release     # Релизы
+make test-e2e-workflow    # Полные workflow сценарии
 
 # Форматирование
 make fmt
@@ -296,6 +310,12 @@ make help
 - ✅ Создание и push git тегов
 - ✅ Обновление зависимостей в go.mod
 - ✅ Базовая поддержка каскадного релиза
+
+**Тестирование:**
+- ✅ Comprehensive E2E test suite
+- ✅ 60+ тестовых сценариев
+- ✅ Полное покрытие developer workflow
+- ✅ Automated testing infrastructure
 
 **Будущие итерации:**
 
@@ -467,6 +487,32 @@ MIT
 
 MaxXxaM
 
+## Тестирование
+
+Проект включает comprehensive E2E test suite, покрывающий все workflow разработчика:
+
+- **60+ тестовых сценариев** - полное покрытие функционала
+- **Автоматизированная инфраструктура** - изолированные тестовые окружения
+- **Workflow тесты** - от инициализации до релиза
+- **Реальные сценарии** - hotfix, feature development, cleanup
+
+Подробнее см. [tests/README.md](tests/README.md)
+
+### Запуск тестов
+
+```bash
+# Все E2E тесты
+make test-e2e
+
+# Конкретные группы
+make test-e2e-init        # Инициализация
+make test-e2e-clone       # Клонирование
+make test-e2e-workspace   # Workspace
+make test-e2e-versioning  # Версионирование
+make test-e2e-release     # Релизы
+make test-e2e-workflow    # Полные workflow
+```
+
 ## Текущий статус
 
 **Версия:** 0.4.0 (Iterations 5-6)
@@ -489,6 +535,7 @@ MaxXxaM
 - ✅ Создание релизов с тегами
 - ✅ Обновление зависимостей в go.mod
 - ✅ Запуск тестов перед релизом
+- ✅ **Comprehensive E2E test coverage**
 
 **Планируется:**
 - Расширенный анализ breaking changes через AST

@@ -23,13 +23,45 @@ clean: ## Удалить артефакты сборки
 	go clean
 	@echo "Очистка завершена"
 
-test: ## Запустить тесты
-	@echo "Запуск тестов..."
-	go test -v -race ./...
+test: ## Запустить unit тесты
+	@echo "Запуск unit тестов..."
+	go test -v -race ./internal/... ./pkg/...
 
-test-coverage: ## Запустить тесты с coverage
+test-e2e: build ## Запустить E2E тесты
+	@echo "Запуск E2E тестов..."
+	@echo "Сборка бинарника для тестов..."
+	@mkdir -p bin
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 30m ./tests/e2e/...
+
+test-e2e-init: build ## Запустить тесты инициализации
+	@echo "Запуск тестов инициализации..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 10m ./tests/e2e/ -run TestInit
+
+test-e2e-clone: build ## Запустить тесты клонирования
+	@echo "Запуск тестов клонирования..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 10m ./tests/e2e/ -run TestClone
+
+test-e2e-workspace: build ## Запустить тесты workspace
+	@echo "Запуск тестов workspace..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 10m ./tests/e2e/ -run "Test.*[Ww]orkspace|Test.*[Ll]ocal|Test.*[Rr]emote|Test.*[Rr]eplace"
+
+test-e2e-versioning: build ## Запустить тесты версионирования
+	@echo "Запуск тестов версионирования..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 10m ./tests/e2e/ -run TestVersion
+
+test-e2e-release: build ## Запустить тесты релизов
+	@echo "Запуск тестов релизов..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 10m ./tests/e2e/ -run TestRelease
+
+test-e2e-workflow: build ## Запустить полные workflow тесты
+	@echo "Запуск полных workflow тестов..."
+	@GOMM_BINARY=$(PWD)/bin/$(BINARY_NAME) go test -v -timeout 20m ./tests/e2e/ -run "Test.*[Ww]orkflow"
+
+test-all: test test-e2e ## Запустить все тесты
+
+test-coverage: ## Запустить unit тесты с coverage
 	@echo "Запуск тестов с coverage..."
-	go test -v -race -coverprofile=coverage.out ./...
+	go test -v -race -coverprofile=coverage.out ./internal/... ./pkg/...
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "Coverage report: coverage.html"
 
