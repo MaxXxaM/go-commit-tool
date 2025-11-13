@@ -79,13 +79,17 @@ gomm clean <module-path>
 gomm clean <module-path> --force
 gomm clean --all
 
-# Переключение на локальную разработку (в разработке)
-gomm local [module...]
+# Переключение на локальную разработку (go.work)
+gomm local <module-path>...
+gomm local --all
+gomm local --prefix github.com/myorg
 
-# Переключение на удаленные версии (в разработке)
-gomm remote [module...]
+# Переключение на удаленные версии (go.mod)
+gomm remote <module-path>...
+gomm remote --all
+gomm remote --prefix github.com/myorg
 
-# Управление replace директивами (в разработке)
+# Управление replace директивами
 gomm replace add <module> <replacement>
 gomm replace remove <module>
 gomm replace list
@@ -173,9 +177,24 @@ gomm remote --all
 
 gomm автоматически управляет `go.work` файлом:
 
-- `gomm local` - добавляет модули в go.work
-- `gomm remote` - удаляет из go.work
-- Поддержка частичного переключения
+- `gomm local` - добавляет модули в go.work (локальная разработка)
+- `gomm remote` - удаляет из go.work (удаленные версии)
+- Поддержка частичного переключения (смешанный режим)
+
+#### Смешанный режим
+
+Вы можете работать с некоторыми модулями локально, а другие использовать из go.mod:
+
+```bash
+# Переключить только один модуль на локальную разработку
+gomm local github.com/myorg/lib-a
+
+# Остальные модули останутся в remote режиме
+gomm status
+# В режиме workspace: 1
+# В режиме remote: 2
+#   (смешанный режим)
+```
 
 ## Структура проекта
 
@@ -244,10 +263,12 @@ make help
 - ✅ Управление placement (local/shared)
 - ✅ Метаданные модулей
 
-**Итерация 3**:
-- Управление go.work
-- Команды local/remote
-- Custom replace директивы
+**Итерация 3** (завершена):
+- ✅ WorkspaceManager для управления go.work
+- ✅ Команды local/remote для переключения режимов
+- ✅ Custom replace директивы
+- ✅ Смешанный режим (частичное переключение)
+- ✅ Обновленная команда status с информацией о workspace
 
 **Итерация 4**:
 - Аутентификация (SSH, токены)
@@ -317,7 +338,50 @@ gomm clean github.com/myorg/temp-lib
 gomm clean --all --force
 ```
 
-### Пример 3: Визуализация дерева
+### Пример 3: Работа с workspace (go.work)
+
+```bash
+# Клонировать зависимости
+gomm clone github.com/myorg/lib-a github.com/myorg/lib-b
+
+# Переключить в workspace режим
+gomm local github.com/myorg/lib-a github.com/myorg/lib-b
+
+# Проверить что go.work создан
+ls go.work
+
+# Разработка с локальными версиями...
+# Go автоматически использует локальные версии модулей
+
+# Переключить только один модуль обратно
+gomm remote github.com/myorg/lib-a
+
+# Статус покажет смешанный режим
+gomm status
+
+# Переключить все обратно на remote
+gomm remote --all
+
+# go.work будет удален
+```
+
+### Пример 4: Custom replace директивы
+
+```bash
+# Добавить replace для модуля
+gomm replace add example.com/old-pkg example.com/new-pkg
+
+# Добавить replace на локальный путь
+gomm replace add example.com/module ../local-fork
+
+# Показать все replace
+gomm replace list
+
+# Удалить replace
+gomm replace remove example.com/old-pkg
+```
+
+### Пример 5: Визуализация дерева
 
 ```bash
 # Полное дерево
@@ -350,7 +414,7 @@ MaxXxaM
 
 ## Текущий статус
 
-**Версия:** 0.2.0 (Iteration 2)
+**Версия:** 0.3.0 (Iteration 3)
 
 **Что работает:**
 - ✅ Инициализация проекта
@@ -362,7 +426,11 @@ MaxXxaM
 - ✅ Перемещение модулей между режимами
 - ✅ Удаление локальных копий
 - ✅ Метаданные и отслеживание состояния
+- ✅ Управление go.work файлом
+- ✅ Переключение между workspace и remote режимами
+- ✅ Смешанный режим работы
+- ✅ Custom replace директивы
 
 **В разработке:**
-- Управление workspace (Iteration 3)
+- Аутентификация (Iteration 4)
 - Версионирование и релизы (Iterations 5-6)

@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/MaxXxaM/gomm/internal/config"
+	"github.com/MaxXxaM/gomm/internal/workspace"
 	"github.com/MaxXxaM/gomm/pkg/types"
 	"github.com/spf13/cobra"
 )
@@ -54,6 +55,15 @@ func runStatus(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("Shared директория: %s\n", cfg.SharedDir)
 	fmt.Printf("Стратегия размещения: %s\n", cfg.DefaultPlacement)
+
+	// Проверяем наличие go.work
+	wsMgr := workspace.NewManager(log)
+	if wsMgr.Exists() {
+		usedModules, _ := wsMgr.GetUsedModules()
+		fmt.Printf("go.work: существует (%d модулей)\n", len(usedModules))
+	} else {
+		fmt.Println("go.work: не существует")
+	}
 	fmt.Println()
 
 	if len(metadata.Modules) == 0 {
@@ -83,6 +93,9 @@ func runStatus(cmd *cobra.Command, args []string) error {
 
 	fmt.Printf("В режиме workspace: %d\n", workspaceCount)
 	fmt.Printf("В режиме remote: %d\n", remoteCount)
+	if workspaceCount > 0 && remoteCount > 0 {
+		fmt.Println("  (смешанный режим)")
+	}
 	fmt.Printf("С изменениями: %d\n", changedCount)
 
 	if verbose {
