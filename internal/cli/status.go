@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -42,11 +41,11 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	// Загружаем метаданные
-	metadata, err := loadMetadata()
+	metadataMgr := config.NewMetadataManager()
+	metadata, err := metadataMgr.LoadOrCreate()
 	if err != nil {
-		log.Warning("Метаданные не найдены")
-		fmt.Println("Выполните: gomm scan")
-		return nil
+		printError(fmt.Errorf("не удалось загрузить метаданные: %w", err))
+		return err
 	}
 
 	// Вывод информации
@@ -101,20 +100,4 @@ func runStatus(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func loadMetadata() (*types.ProjectMetadata, error) {
-	metadataPath := config.GetMetadataPath()
-
-	data, err := os.ReadFile(metadataPath)
-	if err != nil {
-		return nil, err
-	}
-
-	var metadata types.ProjectMetadata
-	if err := json.Unmarshal(data, &metadata); err != nil {
-		return nil, fmt.Errorf("не удалось распарсить метаданные: %w", err)
-	}
-
-	return &metadata, nil
 }
